@@ -20,26 +20,25 @@ export interface DocumentEntity {
 }
 
 export async function findEntityAtPosition(position: Position, documentText: string): Promise<DocumentEntity> {
-  let entity: DocumentEntity = {} as DocumentEntity;
+ let entity: DocumentEntity | null = null;
   let tags: Tag[] = [];
 
-  parser.eventHandler = (type: SaxEventType, tag: Detail) => {
+  parser.eventHandler = (event: SaxEventType, tag: Detail) => {
     tag = tag as Tag;
-
-    if (entity.target) {
+    if (entity) {
       return;
     }
 
-    if (type === SaxEventType.OpenTag) {
+    if (event === SaxEventType.OpenTag) {
       tags.push(tag);
     }
 
-    if (type === SaxEventType.CloseTag) {
+    if (event === SaxEventType.CloseTag) {
       tags.pop();
       entity = getTagEntity(position, tag);
     }
 
-    if (entity.target && tags.length) {
+    if (entity && tags.length) {
       entity.parent = tags[tags.length - 1];
     }
   };
@@ -51,9 +50,10 @@ export async function findEntityAtPosition(position: Position, documentText: str
     parser.write(Buffer.from(documentText));
   } catch (e) {
     // Skip over these
+    console.error(e);
   } finally {
     parser.end();
   }
 
-  return entity;
+  return entity || {} as DocumentEntity;
 }

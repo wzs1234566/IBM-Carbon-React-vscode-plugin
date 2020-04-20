@@ -20,7 +20,7 @@ export function getTagEntity(position: any, tag: any) {
             attribute: {},
             target: 'attributeName',
             substr: ''
-        }
+        };
     }
     // Determine if we're over the open tag's name
     let end = { ...openStart, character: openStart.character + name.length + 1 };
@@ -38,6 +38,7 @@ export function getTagEntity(position: any, tag: any) {
     // Determine if we're over whitespace in the child nodes area
     // Determine if we're over the close tag's name
     targetPosition = { start: openEnd, end: closeStart };
+    // targetPosition = {start: closeStart, end: closeEnd};
     if (rangeUtil(targetPosition, position)) {
         return {
             ...targetPosition,
@@ -46,6 +47,8 @@ export function getTagEntity(position: any, tag: any) {
             substr: tag.name.substr(0, position.character - closeStart.character)
         };
     }
+
+    return null;
 }
 
 function rangeUtil(range: any, position: any) {
