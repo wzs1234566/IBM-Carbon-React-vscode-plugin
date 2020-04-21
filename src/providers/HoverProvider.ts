@@ -9,7 +9,7 @@ export class CarbonHoverProvider implements vscode.HoverProvider {
         myContent.isTrusted = true;
         const myHover = new vscode.Hover(myContent);
 
-        if (word == "HELLO") {
+        if (word === "HELLO") {
             return myHover;
         }
     }
