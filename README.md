@@ -65,4 +65,3 @@ Added features X, Y, and Z.
 **Enjoy!**
 
 ## Credits:
-https://github.com/justinwilaby/jsx-for-adaptive-cards.git

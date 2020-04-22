@@ -1,59 +1,104 @@
-import * as fs from 'fs';
-import { Position, SaxEventType, SAXParser, Tag, Detail } from 'sax-wasm';
-import { Attribute } from 'sax-wasm/lib';
-import { Range } from 'vscode';
-import { getTagEntity } from './PaserUtil';
-
-const saxPath = require.resolve('sax-wasm/lib/sax-wasm.wasm');
-const saxWasmBuffer = fs.readFileSync(saxPath);
-let parserReady: boolean = false;
-const parser = new SAXParser(SaxEventType.OpenTag | SaxEventType.CloseTag);
-
-export interface DocumentEntity {
-  target: 'tag' | 'attributeValue' | 'attributeName';
-  substr: string;
-  start: Position,
-  end: Position,
-  attribute?: Attribute,
-  tag?: Tag;
-  parent?: Tag;
+import { Parser } from 'acorn';
+const parser = Parser.extend(
+  require("acorn-jsx")(),
+);
+export interface AST {
+  type: string,
+  start: number,
+  end: number,
+  parent: AST,
+  body?: AST[],
+  expression?: AST,
+  openingElement?: AST,
+  attributes?: AST[],
+  name?: AST,
+  value?: AST,
+  children?: AST[]
 }
 
-export async function findEntityAtPosition(position: Position, documentText: string): Promise<DocumentEntity> {
- let entity: DocumentEntity | null = null;
-  let tags: Tag[] = [];
+let node: any = null;
+export async function findEntityAtPosition(offset: number, documentText: string): Promise<AST> {
+  node = null;
+  const ast: AST = parser.parse(documentText) as AST;
+  walkAST(offset, ast, {} as AST);
+  return node;
+}
 
-  parser.eventHandler = (event: SaxEventType, tag: Detail) => {
-    tag = tag as Tag;
-    if (entity) {
+// walks the ast and returns the ast node position is in
+function walkAST(offset: number, ast: AST, parent: AST): void {
+  switch (ast.type) {
+    case "Program":
+      if (ast.body) {
+        for (let i = 0; i < ast.body.length; i++) {
+          walkAST(offset, ast.body[i], ast);
+        }
+      }
+      break;
+    case "ExpressionStatement":
+      if (ast.expression && ast.expression.type === "JSXElement") {
+        walkAST(offset, ast.expression, ast);
+      }
+      break;
+    case "JSXElement":
+      if (inRange(offset, ast) && ast.openingElement && ast.children) {
+        node = ast;
+        node.parent = parent;
+        walkAST(offset, ast.openingElement, ast);
+        for (let i = 0; i < ast.children.length; i++) {
+          walkAST(offset, ast.children[i], ast);
+        }
+      }
+      break;
+    case "JSXOpeningElement":
+      if (inRange(offset, ast) && ast.name && ast.attributes) {
+        node = ast;
+        node.parent = parent;
+        walkAST(offset, ast.name, ast);
+        for (let i = 0; i < ast.attributes.length; i++) {
+          walkAST(offset, ast.attributes[i], ast);
+        }
+      }
+      break;
+    case "JSXIdentifier":
+      if (inRange(offset, ast)) {
+        node = ast;
+        node.parent = parent;
+      }
+      break;
+    case "JSXAttribute":
+      if (inRange(offset, ast) && ast.name && ast.value) {
+        node = ast;
+        node.parent = parent;
+        walkAST(offset, ast.name, ast);
+        walkAST(offset, ast.value, ast);
+      }
+      break;
+    case "JSXExpressionContainer":
+      if (inRange(offset, ast) && ast.expression) {
+        node = ast;
+        node.parent = parent;
+        walkAST(offset, ast.expression, ast);
+      }
+      if (inRange(offset, ast) && ast.value) {
+        node = ast;
+        node.parent = parent;
+        walkAST(offset, ast.value, ast);
+      }
+      break;
+    case "Literal":
+      if (inRange(offset, ast)) {
+        node = ast;
+        node.parent = parent;
+      }
+      break;
+    default:
       return;
-    }
-
-    if (event === SaxEventType.OpenTag) {
-      tags.push(tag);
-    }
-
-    if (event === SaxEventType.CloseTag) {
-      tags.pop();
-      entity = getTagEntity(position, tag);
-    }
-
-    if (entity && tags.length) {
-      entity.parent = tags[tags.length - 1];
-    }
-  };
-
-  if (!parserReady) {
-    parserReady = await parser.prepareWasm(saxWasmBuffer);
   }
-  try {
-    parser.write(Buffer.from(documentText));
-  } catch (e) {
-    // Skip over these
-    console.error(e);
-  } finally {
-    parser.end();
-  }
+}
 
-  return entity || {} as DocumentEntity;
+function inRange(offset: number, ast: AST): boolean {
+  if (offset >= ast.start && offset < ast.end) {
+    return true;
+  }
+  return false;
 }
