@@ -17,11 +17,11 @@ export interface AST {
 }
 
 let node: any = null;
-export async function findEntityAtPosition(offset: number, documentText: string): Promise<AST> {
+export async function findEntityAtPosition(offset: number, documentText: string): Promise<Entity> {
   node = null;
   const ast: AST = parser.parse(documentText) as AST;
   walkAST(offset, ast, {} as AST);
-  return node;
+  return ASTtoEntity(node);
 }
 
 // walks the ast and returns the ast node position is in
@@ -101,4 +101,68 @@ function inRange(offset: number, ast: AST): boolean {
     return true;
   }
   return false;
+}
+
+export interface Entity {
+  target: 'tagName' | 'attributeName' | 'attributeValue' | 'children',
+  parent: Entity,
+  value: string
+}
+
+function ASTtoEntity(ast: AST): Entity {
+  switch (ast.type) {
+    // case "Program":
+    //   break;
+    // case "ExpressionStatement":
+    //   break;
+    case "JSXElement":
+      // children of some component
+      return {
+        target: 'children',
+        parent: {
+          target: 'tagName',
+          parent: {} as Entity,
+          value: ast.openingElement ? ast.openingElement.name ? ast.openingElement.name.name : '' : ''
+        } as Entity,
+        value: '',
+      } as Entity;
+    case "JSXOpeningElement":
+      // return attributes names of some component
+      return {
+        target: 'attributeName',
+        parent: {
+          target: 'tagName',
+          parent: {} as Entity,
+          value: ast.name ? ast.name.name : ''
+        } as Entity,
+        value: '',
+      } as Entity;
+    // case "JSXIdentifier":
+    //   break;
+    case "JSXAttribute":
+      // return attributes names of some component
+      // happends when pressed enter on an attribute
+      // TODO: should more intelligent ? 
+      return {
+        target: 'attributeName',
+        parent: {
+          target: 'tagName',
+          parent: {},
+          value: ast.parent ? ast.parent.name ? ast.parent.name.name : '' : ''
+        },
+        value: ast.name ? ast.name.name : '',
+      } as Entity;
+    // case "JSXExpressionContainer":
+    //   break;
+    case "Literal":
+      return {
+        target: 'attributeValue',
+        parent: ASTtoEntity(ast.parent),
+        value: ast.value ? ast.value : '',
+      } as Entity;
+    default:
+      console.error("Invalid");
+      console.error(ast);
+      throw new Error("Invalid");
+  }
 }
