@@ -1,6 +1,7 @@
 
 import * as vscode from 'vscode';
 import { findEntityAtPosition } from '../paser/Paser';
+import { Entity } from '../types/types';
 
 export class CarbonCompletionItemProvider implements vscode.CompletionItemProvider {
     async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
@@ -11,8 +12,8 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         // if (linePrefix.endsWith('<')) {
         // 	return [new vscode.CompletionItem('items', vscode.CompletionItemKind.Method)];
         // }
-// document.getText
-        let a = await findEntityAtPosition(document.offsetAt(position), document.getText());
+        // document.getText
+        let a: Entity = await findEntityAtPosition(document.offsetAt(position), document.getText());
         vscode.window.showInformationMessage(
             `type: ${a.target}, value: ${a.value}, parent: ${a.parent.value}`
         );

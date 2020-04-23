@@ -1,12 +1,8 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { findEntityAtPosition, Entity } from '../../paser/Paser';
+import { findEntityAtPosition } from '../../paser/Paser';
+import { Entity } from '../../types/types';
 
-// export interface Entity {
-//     target: 'tagName' | 'attributeName' | 'attributeValue' | 'children',
-//     parent: Entity,
-//     value: string
-//   }
 suite('Paser Test Suite', () => {
     vscode.window.showInformationMessage('Start all tests.');
 

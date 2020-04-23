@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	vscode.window.showInformationMessage('Hello World from IBM-Carbon-React!');
 
-	const languages = ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'];
+	const languages = ['javascript', 'javascriptreact',]; //'typescript', 'typescriptreact'];
 	
 	// Completion Item Provider
 	const provider = vscode.languages.registerCompletionItemProvider(

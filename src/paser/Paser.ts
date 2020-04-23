@@ -1,20 +1,9 @@
 import { Parser } from 'acorn';
+import { AST, Entity } from '../types/types';
+
 const parser = Parser.extend(
   require("acorn-jsx")(),
 );
-export interface AST {
-  type: string,
-  start: number,
-  end: number,
-  parent: AST,
-  body?: AST[],
-  expression?: AST,
-  openingElement?: AST,
-  attributes?: AST[],
-  name?: AST,
-  value?: AST,
-  children?: AST[]
-}
 
 let node: any = null;
 export async function findEntityAtPosition(offset: number, documentText: string): Promise<Entity> {
@@ -101,12 +90,6 @@ function inRange(offset: number, ast: AST): boolean {
     return true;
   }
   return false;
-}
-
-export interface Entity {
-  target: 'tagName' | 'attributeName' | 'attributeValue' | 'children',
-  parent: Entity,
-  value: string
 }
 
 function ASTtoEntity(ast: AST): Entity {
