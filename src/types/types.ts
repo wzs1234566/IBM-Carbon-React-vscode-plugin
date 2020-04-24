@@ -17,3 +17,19 @@ export interface Entity {
     parent: Entity,
     value: string
 }
+
+export type CarbonModel = Record<string, Model>;
+export interface Model {
+    description: string,
+    displayName: string,
+    props?: Record<string, PropsModel>;
+}
+export interface PropsModel {
+    defaultValue?: {
+        computed: boolean
+        value: string
+    },
+    description?: string,
+    required: boolean,
+    type?: any
+}
