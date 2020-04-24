@@ -1,4 +1,3 @@
-
 import * as vscode from 'vscode';
 import { findEntityAtPosition } from '../paser/Paser';
 import { Entity } from '../types/types';
