@@ -97,4 +97,13 @@ suite('Paser Test Suite', () => {
         assert.equal(a.target, 'attributeName');
         assert.equal(a.parent.value, 'e');
     });
+
+    test('Hover - JSX in attribute name - parent name', async () => {
+        const a: Entity = await findEntityAtPosition(
+            3,
+            "<a b=' '></a>");
+        assert.equal(a.target, 'attributeName');
+        assert.equal(a.value, 'b');
+        assert.equal(a.parent.value, 'a');
+    });
 });

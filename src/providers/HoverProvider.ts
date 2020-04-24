@@ -1,9 +1,13 @@
 import * as vscode from 'vscode';
+import { findEntityAtPosition } from '../paser/Paser';
+import { Entity } from '../types/types';
 
 export class CarbonHoverProvider implements vscode.HoverProvider {
-    provideHover(document: vscode.TextDocument, position: vscode.Position) {
+    async provideHover(document: vscode.TextDocument, position: vscode.Position) {
         const range = document.getWordRangeAtPosition(position);
         const word = document.getText(range);
+
+        let a: Entity = await findEntityAtPosition(document.offsetAt(position), document.getText());
 
         const myContent = new vscode.MarkdownString('# Hello Value \n\n' + '[Click to see example](https://react.carbondesignsystem.com/?path=/story/accordion)');
         myContent.isTrusted = true;

@@ -7,7 +7,7 @@ export interface AST {
     expression?: AST,
     openingElement?: AST,
     attributes?: AST[],
-    name?: AST,
+    name?: any,
     value?: AST,
     children?: AST[]
 }

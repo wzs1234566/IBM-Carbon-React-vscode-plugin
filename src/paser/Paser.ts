@@ -58,8 +58,8 @@ function walkAST(offset: number, ast: AST, parent: AST): void {
       if (inRange(offset, ast) && ast.name && ast.value) {
         node = ast;
         node.parent = parent;
-        walkAST(offset, ast.name, ast);
-        walkAST(offset, ast.value, ast);
+        walkAST(offset, ast.name, node);
+        walkAST(offset, ast.value, node);
       }
       break;
     case "JSXExpressionContainer":
@@ -120,8 +120,17 @@ function ASTtoEntity(ast: AST): Entity {
         } as Entity,
         value: '',
       } as Entity;
-    // case "JSXIdentifier":
-    //   break;
+    case "JSXIdentifier":
+      // on hover, property
+      return {
+        target: 'attributeName',
+        parent: {
+          target: 'tagName',
+          parent: {},
+          value: ast.parent.parent.name.name,
+        },
+        value: ast.name,
+      } as Entity;
     case "JSXAttribute":
       // return attributes names of some component
       // happends when pressed enter on an attribute
@@ -133,7 +142,7 @@ function ASTtoEntity(ast: AST): Entity {
           parent: {},
           value: ast.parent ? ast.parent.name ? ast.parent.name.name : '' : ''
         },
-        value: ast.name ? ast.name.name : '',
+        value: ast.name ? (ast.name.name ? ast.name.name : ast.name) : '',
       } as Entity;
     // case "JSXExpressionContainer":
     //   break;
