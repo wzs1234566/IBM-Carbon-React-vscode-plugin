@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as Mocha from 'mocha';
 import * as glob from 'glob';
+import * as vscode from 'vscode';
 
 export function run(): Promise<void> {
 	// Create the mocha test
@@ -12,6 +13,7 @@ export function run(): Promise<void> {
 	const testsRoot = path.resolve(__dirname, '..');
 
 	return new Promise((c, e) => {
+		vscode.window.showInformationMessage('Start all tests.');
 		glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
 			if (err) {
 				return e(err);

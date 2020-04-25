@@ -18,11 +18,15 @@ export interface Entity {
     value: string
 }
 
-export type CarbonModel = Record<string, Model>;
+export interface CarbonModel {
+    [key: string]: Model
+}
+// export type CarbonModel = Record<string, PropsModel>;
 export interface Model {
     description: string,
     displayName: string,
-    props?: Record<string, PropsModel>;
+    props?: Record<string, PropsModel>,
+    // composes?: any
 }
 export interface PropsModel {
     defaultValue?: {
@@ -31,5 +35,9 @@ export interface PropsModel {
     },
     description?: string,
     required: boolean,
-    type?: any
+    type?: {
+        name?: string,
+        value?: any,
+        raw?: string
+    }
 }

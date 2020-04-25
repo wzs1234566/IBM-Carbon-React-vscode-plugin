@@ -4,7 +4,7 @@ import { findEntityAtPosition } from '../../paser/Paser';
 import { Entity } from '../../types/types';
 
 suite('Paser Test Suite', () => {
-    vscode.window.showInformationMessage('Start all tests.');
+    vscode.window.showInformationMessage('Paser Test Suite');
 
     test('Simple tag name and attributeName - full tag', async () => {
         const a: Entity = await findEntityAtPosition(

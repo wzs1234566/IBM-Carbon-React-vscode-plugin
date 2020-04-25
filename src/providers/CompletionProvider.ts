@@ -16,13 +16,13 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         let a: Entity = {} as Entity;
         try {
             a = await findEntityAtPosition(document.offsetAt(position), document.getText());
-        } catch (e) {}
+        } catch (e) { }
 
         vscode.window.showInformationMessage(
             `type: ${a.target}, value: ${a.value}, parent: ${a.parent.value}`
         );
         console.log(a);
-        entityToCompletionItem(a);
+        return entityToCompletionItem(a);
 
         return [
             new vscode.CompletionItem('log1', vscode.CompletionItemKind.Method),
@@ -31,4 +31,9 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         ];
 
     }
+    // resolveCompletionItem?(item: vscode.CompletionItem, token: vscode.CancellationToken): vscode.ProviderResult<vscode.CompletionItem> {
+    //     // console.log(item);
+    //     return null;
+
+    // }
 }
