@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
 import { CarbonHoverProvider } from './providers/HoverProvider';
 import { CarbonCompletionItemProvider } from './providers/CompletionProvider';
+import { Entity, Model, PropsModel, CarbonModel } from './types/types';
+import * as cm from './CarbonModel/react-docgen.json';
+const carbonModel: CarbonModel = cm as CarbonModel;
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -23,6 +26,16 @@ export function activate(context: vscode.ExtensionContext) {
 		languages,
 		new CarbonHoverProvider()
 	);
+
+	// Object.keys(carbonModel).forEach((model) => {
+	// 	const m = carbonModel[model];
+	// 	Object.keys(m.props || []).forEach((pn) => {
+	// 		const prop = m.props?.[pn];
+	// 		if (prop?.type?.name === 'func') {
+	// 			console.log(prop);
+	// 		}
+	// 	});
+	// });
 
 }
 

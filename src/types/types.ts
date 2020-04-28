@@ -25,7 +25,9 @@ export interface CarbonModel {
 export interface Model {
     description: string,
     displayName: string,
-    props?: Record<string, PropsModel>,
+    props?: {
+        [key: string]: PropsModel
+    }
     // composes?: any
 }
 export interface PropsModel {
@@ -38,6 +40,7 @@ export interface PropsModel {
     type?: {
         name?: string,
         value?: any,
-        raw?: string
+        raw?: string,
+        computed?: boolean
     }
 }

@@ -1,34 +1,66 @@
 import * as vscode from 'vscode';
 import { Entity, CarbonModel, Model, PropsModel } from '../types/types';
 import * as cm from '../CarbonModel/react-docgen.json';
+const carbonModel: CarbonModel = cm as CarbonModel;
 
 export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] {
-    let carbonModel = cm as CarbonModel;
+
+    const res: vscode.CompletionItem[] = [];
 
     switch (entity.target) {
         case 'tagName':
             break;
         case 'attributeName':
+            const parentTagName: string = entity.parent.value;
+            const parentModel: Model = carbonModel[parentTagName];
+            const propsModel = parentModel.props;
+            if (propsModel) {
+                Object.keys(propsModel).forEach(
+                    (propsName) => {
+                        res.push(propsToCompletionItem(propsName, propsModel[propsName]));
+                    }
+                );
+            }
             break;
         case 'attributeValue':
             break;
         case 'children':
-            const res: vscode.CompletionItem[] = [];
             Object.keys(carbonModel).forEach(
                 (model) => {
                     res.push(carbonModelToCompletionItem(model, carbonModel[model]));
                 }
             );
-            return res;
+            break;
         default:
             console.error("Invalid");
             console.error(entity);
     }
-    return [];
+    return res;
 }
 
+export function propsToCompletionItem(propsName: string, props: PropsModel): vscode.CompletionItem {
+    let ci = new vscode.CompletionItem(propsName, vscode.CompletionItemKind.Field);
+    let snippetString = `${propsName}=`;
+    if (props.defaultValue) {
+        if (props.defaultValue.computed) {
+            snippetString += '{';
+            snippetString += props.defaultValue.value;
+            snippetString += '}';
+        }
+    }
+    const propOptions = propsTypeToOptions(props);
+    if (propOptions.length > 0) {
+        snippetString += '${1|' + propsTypeToOptions(props) + '|}';
+    }
+    ci.insertText = new vscode.SnippetString(snippetString);
+    ci.documentation = props.description;
+    ci.detail = 'detail' + props.description;
+    return ci;
+}
+
+// function props
+
 export function carbonModelToCompletionItem(name: string, model: Model): vscode.CompletionItem {
-    // mode
     let ci = new vscode.CompletionItem(name, vscode.CompletionItemKind.Class);
     // ci.insertText = `<${name}>\n   $1 \n</${name}>$2`;
     // ci.insertText = new vscode.SnippetString("Good ${1|'morning',afternoon,evening|}.\n It is ${2|a,c,d|}, right?");
@@ -45,7 +77,7 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
                         propsText += '${' + counter + '|' + options + '|}\n';
                         counter++;
                     } else {
-                        propsText +=  options;
+                        propsText += options;
                     }
                 }
             }
@@ -53,51 +85,62 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
     }
 
     ci.documentation = model.description;
-    const insertText = new vscode.SnippetString(`<${name}\n${propsText}>\n</${name}>`);
+    const insertText = new vscode.SnippetString(`<${name}\n${propsText}\t$1\n>$2\n</${name}>$3`);
     ci.insertText = insertText;
     return ci;
 }
 
-function propsTypeToOptions(prop: PropsModel): string {
+export function propsTypeToOptions(prop: PropsModel): string {
+    let r = "";
     switch (prop.type?.name) {
         case 'enum':
-            let r = "";
             if (prop.type.value) {
                 // enum and union is array value
-                for (let v of prop.type.value) {
-                    r += v.value;
+                let values = [];
+                if (prop.defaultValue?.value) {
+                    if (prop.defaultValue?.computed) {
+                        values.push(`{${prop.defaultValue?.value}}`);
+                    } else {
+                        values.push(prop.defaultValue?.value);
+                    }
+                }
+                if (Array.isArray(prop.type.value)) {
+                    for (let v of prop.type.value) {
+                        if (v.value !== values[0]) {
+                            if (v.computed) {
+                                values.push(`{${v.value}}`);
+                            } else {
+                                values.push(v.value);
+                            }
+                        }
+                    }
+                } else {
+                    if (prop.type.computed) {
+                        values.push(`{${prop.type.value}}`);
+                    } else {
+                        values.push(prop.type.value);
+                    }
+                }
+                for (let v of values) {
+                    r += v;
                     r += ',';
                 }
             }
             return r.slice(0, -1);
-        // "value": [
-        //     {
-        //         "value": "'small'",
-        //         "computed": false
-        //     },
-        //     {
-        //         "value": "'normal'",
-        //         "computed": false
-        //     }
-        // ]
-        case 'node':
-        // "type": {
-        //     "name": "node"
-        // },
-        // "required": false,
-        // "description": ""
-
-        case 'string':
-            // if(prop.type.value){
-            //     return prop.type.value;
-            // }
-            return "''";
-        // "type": {
-        //     "name": "string"
-        // },
-        // "required": false,
-        // "description": ""
         case 'func':
+            if (prop.defaultValue?.computed === false) {
+                prop.defaultValue.computed = true;
+            }
+        case 'string':
+        case 'node':
+            if (prop.defaultValue) {
+                if (prop.defaultValue?.computed) {
+                    r += `{${prop.defaultValue?.value}}`;
+                } else {
+                    r += `${prop.defaultValue?.value}`;
+                }
+            }
+            return r;
 
         case 'union':
         //
@@ -144,30 +187,17 @@ function propsTypeToOptions(prop: PropsModel): string {
         // ]':
 
         case 'bool':
-
+            return '{true},{false}';
         case 'custom':
-        // "type": {
-        //     "name": "custom",
-        //     "raw": "deprecate(\n  PropTypes.bool,\n  `\\nThe prop \\`persistant\\` for TableToolbarSearch has been deprecated in favor of \\`persistent\\`. Please use \\`persistent\\` instead.`\n)"
-        // },
+            return prop.type.raw || '';
         case 'object':
         case 'shape':
         case 'arrayOf':
         case 'number':
-
-        // number
-        // "name": "arrayOf",
-        // "value": {
-        //     "name": "string"
-        // }
-        // "type": {
-        //     "name": "shape",
-        //     "value": "Downshift.propTypes",
-        //     "computed": true
-        // },
     }
     return '';
 }
+
 // export function entityToHoverItem(entity: Entity) {
 
 // }
