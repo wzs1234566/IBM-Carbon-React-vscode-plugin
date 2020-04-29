@@ -26,12 +26,13 @@ export function activate(context: vscode.ExtensionContext) {
 		languages,
 		new CarbonHoverProvider()
 	);
+	// var types = {};
 
 	// Object.keys(carbonModel).forEach((model) => {
 	// 	const m = carbonModel[model];
 	// 	Object.keys(m.props || []).forEach((pn) => {
 	// 		const prop = m.props?.[pn];
-	// 		if (prop?.type?.name === 'func') {
+	// 		if (prop?.type?.name === 'union') {
 	// 			console.log(prop);
 	// 		}
 	// 	});

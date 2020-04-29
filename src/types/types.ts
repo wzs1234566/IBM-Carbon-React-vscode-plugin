@@ -21,7 +21,7 @@ export interface Entity {
 export interface CarbonModel {
     [key: string]: Model
 }
-// export type CarbonModel = Record<string, PropsModel>;
+
 export interface Model {
     description: string,
     displayName: string,

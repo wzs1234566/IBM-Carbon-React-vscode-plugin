@@ -48,9 +48,9 @@ export function propsToCompletionItem(propsName: string, props: PropsModel): vsc
             snippetString += '}';
         }
     }
-    const propOptions = propsTypeToOptions(props);
+    const propOptions = propsModelToOptions(props);
     if (propOptions.length > 0) {
-        snippetString += '${1|' + propsTypeToOptions(props) + '|}';
+        snippetString += '${1|' + propsModelToOptions(props) + '|}';
     }
     ci.insertText = new vscode.SnippetString(snippetString);
     ci.documentation = props.description;
@@ -72,7 +72,7 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
                 const prop = model.props?.[propKey];
                 if (prop?.required) {
                     propsText += `\t${propKey}=`;
-                    let options = propsTypeToOptions(prop);
+                    let options = propsModelToOptions(prop);
                     if (options.length >= 1) {
                         propsText += '${' + counter + '|' + options + '|}\n';
                         counter++;
@@ -90,110 +90,95 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
     return ci;
 }
 
-export function propsTypeToOptions(prop: PropsModel): string {
+export function propsModelToOptions(prop: PropsModel): string {
     let r = "";
     switch (prop.type?.name) {
+        case 'custom':
+        case 'shape':
+            if (prop.defaultValue && !prop.defaultValue?.value && prop.type.raw) {
+                prop.defaultValue.value = prop.type.raw || '';
+                prop.defaultValue.computed = true;
+            }
+            if (prop.defaultValue && typeof prop.defaultValue?.value !== 'string') {
+                try { prop.defaultValue.value = JSON.stringify(prop.defaultValue?.value); } catch (e) { }
+            }
+            if (prop.type.value && typeof prop.type.value !== 'string') {
+                try { prop.type.value = JSON.stringify(prop.type.value); } catch (e) { }
+            }
+        case 'number':
+        case 'func':
+            if (prop.defaultValue && !prop.defaultValue?.computed) {
+                prop.defaultValue.computed = true;
+            }
+            if (!prop.type.computed) {
+                prop.type.computed = true;
+            }
+            if (Array.isArray(prop.type.value)) {
+                for (let v of prop.type.value) {
+                    v.computed = true;
+                }
+            }
+        case 'string':
+        case 'node':
+        case 'object':
+        case 'union':
         case 'enum':
-            if (prop.type.value) {
-                // enum and union is array value
-                let values = [];
-                if (prop.defaultValue?.value) {
-                    if (prop.defaultValue?.computed) {
-                        values.push(`{${prop.defaultValue?.value}}`);
+            if (!prop.type.value) {
+                prop.type.value = '';
+            }
+            // enum and union is array value
+            let values = [];
+            if (prop.defaultValue?.value) {
+                if (prop.defaultValue?.computed) {
+                    values.push(`{${prop.defaultValue?.value}}`);
+                } else {
+                    values.push(prop.defaultValue?.value);
+                }
+            }
+            if (Array.isArray(prop.type.value)) {
+                for (let v of prop.type.value) {
+                    let t = '';
+                    if (v.computed) {
+                        t = `{${v.value}}`;
                     } else {
-                        values.push(prop.defaultValue?.value);
+                        t = v.value;
+                    }
+                    if (v.value && v.value.length > 0 && t !== values[0]) {
+                        values.push(t);
                     }
                 }
-                if (Array.isArray(prop.type.value)) {
-                    for (let v of prop.type.value) {
-                        if (v.value !== values[0]) {
-                            if (v.computed) {
-                                values.push(`{${v.value}}`);
-                            } else {
-                                values.push(v.value);
-                            }
-                        }
-                    }
-                } else {
+            } else {
+                if (prop.type.value && prop.type.value.length > 0) {
                     if (prop.type.computed) {
                         values.push(`{${prop.type.value}}`);
                     } else {
                         values.push(prop.type.value);
                     }
                 }
-                for (let v of values) {
-                    r += v;
-                    r += ',';
-                }
+            }
+            for (let v of values) {
+                r += v;
+                r += ',';
             }
             return r.slice(0, -1);
-        case 'func':
-            if (prop.defaultValue?.computed === false) {
-                prop.defaultValue.computed = true;
-            }
-        case 'string':
-        case 'node':
-            if (prop.defaultValue) {
-                if (prop.defaultValue?.computed) {
-                    r += `{${prop.defaultValue?.value}}`;
-                } else {
-                    r += `${prop.defaultValue?.value}`;
-                }
-            }
-            return r;
-
-        case 'union':
-        //
-        // "type": {
-        //     "name": "union",
-        //     "value": [
-        //         {
-        //             "name": "string"
-        //         },
-        //         {
-        //             "name": "arrayOf",
-        //             "value": {
-        //                 "name": "union",
-        //                 "value": [
-        //                     {
-        //                         "name": "string"
-        //                     },
-        //                     {
-        //                         "name": "number"
-        //                     },
-        //                     {
-        //                         "name": "object"
-        //                     }
-        //                 ]
-        //             }
-        //         },
-        //         {
-        //             "name": "object"
-        //         },
-        //         {
-        //             "name": "number"
-        //         }
-        //     ]
-        // },
-
-        //
-        // "value": [
-        //     {
-        //         "name": "number"
-        //     },
-        //     {
-        //         "name": "string"
-        //     }
-        // ]':
-
         case 'bool':
             return '{true},{false}';
-        case 'custom':
-            return prop.type.raw || '';
-        case 'object':
-        case 'shape':
+        case 'array':
+            return '{[]}';
         case 'arrayOf':
-        case 'number':
+            if (prop.defaultValue && prop.defaultValue.value) {
+                return `{${prop.defaultValue?.value}}`;
+            }
+            if (prop.type?.value?.value && prop.type?.value?.value instanceof Object) {
+                let values = prop.type?.value?.value;
+                for (let v in values) {
+                    r += `${v}: ${values[v].name},`;
+                }
+                r = r.slice(0, -1);
+                return `{[ {${r}} ]}`;
+            }
+        case 'any':
+            return 'any';
     }
     return '';
 }

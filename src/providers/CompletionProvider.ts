@@ -23,14 +23,8 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         );
         console.log(a);
         return entityToCompletionItem(a);
-
-        return [
-            new vscode.CompletionItem('log1', vscode.CompletionItemKind.Method),
-            new vscode.CompletionItem('warn1', vscode.CompletionItemKind.Method),
-            new vscode.CompletionItem('error1', vscode.CompletionItemKind.Method),
-        ];
-
     }
+
     // resolveCompletionItem?(item: vscode.CompletionItem, token: vscode.CancellationToken): vscode.ProviderResult<vscode.CompletionItem> {
     //     // console.log(item);
     //     return null;
