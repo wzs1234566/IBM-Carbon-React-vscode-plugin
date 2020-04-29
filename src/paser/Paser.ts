@@ -127,7 +127,7 @@ function ASTtoEntity(ast: AST): Entity {
         parent: {
           target: 'tagName',
           parent: {},
-          value: ast.parent.parent.name.name,
+          value: ast.parent.parent?.name?.name,
         },
         value: ast.name,
       } as Entity;

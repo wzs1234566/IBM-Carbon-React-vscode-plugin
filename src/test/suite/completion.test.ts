@@ -211,6 +211,22 @@ suite('Completion Test Suite', () => {
         assert.equal(propsModelToOptions(type as PropsModel), "{() => {}}");
     });
 
+    test('type to props - func 2', () => {
+        const type = {
+            "defaultValue": {
+                "value": "() => {}",
+                "computed": false
+            },
+            "type": {
+                "name": "func"
+            },
+            "required": false,
+            "description": "Provide a function that is called when menu is closed"
+        };
+        assert.equal(propsModelToOptions(type as PropsModel), "{() => {}}");
+    });
+
+
     test('type to props - shape 0', () => {
         const type = {
             "type": {

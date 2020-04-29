@@ -43,19 +43,18 @@ export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] 
 export function propsToCompletionItem(propsName: string, props: PropsModel): vscode.CompletionItem {
     let ci = new vscode.CompletionItem(propsName, vscode.CompletionItemKind.Field);
     let snippetString = `${propsName}=`;
-    if (props.defaultValue) {
-        if (props.defaultValue.computed) {
-            snippetString += '{';
-            snippetString += props.defaultValue.value;
-            snippetString += '}';
-        }
-    }
     const propOptions = propsModelToOptions(props);
     if (propOptions.length > 0) {
         snippetString += '${1|' + propsModelToOptions(props) + '|}';
     }
+    
     ci.insertText = new vscode.SnippetString(snippetString);
     ci.detail = props.description;
+    let typeDoc = '';
+    if(props.type?.name){
+        typeDoc += 'type: ' + props.type?.name;
+    }
+    ci.documentation = typeDoc;
     return ci;
 }
 
@@ -83,7 +82,7 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
         );
     }
 
-    ci.documentation = model.description;
+    ci.detail = model.description;
 
     let insertText = null;
     if (propsText.length === 0) {
