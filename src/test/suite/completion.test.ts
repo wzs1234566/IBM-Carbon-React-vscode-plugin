@@ -11,7 +11,7 @@ suite('Completion Test Suite', () => {
             'a',
             {} as Model
         );
-        assert.equal(JSON.stringify(a.insertText.value), JSON.stringify("<a\n\t$1\n>$2\n</a>$3"));
+        assert.equal(JSON.stringify(a.insertText.value), JSON.stringify("<a>$2</a>"));
     });
 
     test('type to props - enum 0', () => {
@@ -107,7 +107,7 @@ suite('Completion Test Suite', () => {
             "required": false,
             "description": "Pass in the children that will be rendered within the Accordion"
         };
-        assert.equal(propsModelToOptions(type as PropsModel), '');
+        assert.equal(propsModelToOptions(type as PropsModel), "''");
     });
 
     test('type to props - node 1', () => {
@@ -146,9 +146,9 @@ suite('Completion Test Suite', () => {
                 "name": "string"
             },
             "required": false,
-            "description": "Provide an optional class to be applied to the containing node"
+            "description": ""
         };
-        assert.equal(propsModelToOptions(type as PropsModel), "");
+        assert.equal(propsModelToOptions(type as PropsModel), "''");
     });
 
     test('type to props - string 1', () => {

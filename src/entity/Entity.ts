@@ -4,9 +4,7 @@ import * as cm from '../CarbonModel/react-docgen.json';
 const carbonModel: CarbonModel = cm as CarbonModel;
 
 export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] {
-
     const res: vscode.CompletionItem[] = [];
-
     switch (entity.target) {
         case 'tagName':
             break;
@@ -23,6 +21,10 @@ export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] 
             }
             break;
         case 'attributeValue':
+            const attributeName = entity.parent.value;
+            const tagName = entity.parent.parent.value;
+            const tagModel = carbonModel[tagName];
+
             break;
         case 'children':
             Object.keys(carbonModel).forEach(
@@ -53,20 +55,17 @@ export function propsToCompletionItem(propsName: string, props: PropsModel): vsc
         snippetString += '${1|' + propsModelToOptions(props) + '|}';
     }
     ci.insertText = new vscode.SnippetString(snippetString);
-    ci.documentation = props.description;
-    ci.detail = 'detail' + props.description;
+    ci.detail = props.description;
     return ci;
 }
-
-// function props
 
 export function carbonModelToCompletionItem(name: string, model: Model): vscode.CompletionItem {
     let ci = new vscode.CompletionItem(name, vscode.CompletionItemKind.Class);
     // ci.insertText = `<${name}>\n   $1 \n</${name}>$2`;
     // ci.insertText = new vscode.SnippetString("Good ${1|'morning',afternoon,evening|}.\n It is ${2|a,c,d|}, right?");
     let propsText = "";
+    let counter = 1;
     if (model.props) {
-        let counter = 1;
         Object.keys(model.props).forEach(
             (propKey) => {
                 const prop = model.props?.[propKey];
@@ -85,7 +84,13 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
     }
 
     ci.documentation = model.description;
-    const insertText = new vscode.SnippetString(`<${name}\n${propsText}\t$1\n>$2\n</${name}>$3`);
+
+    let insertText = null;
+    if (propsText.length === 0) {
+        insertText = new vscode.SnippetString(`<${name}>$${++counter}</${name}>`);
+    } else {
+        insertText = new vscode.SnippetString(`<${name}\n${propsText}$${++counter}>$${++counter}\n</${name}>$${++counter}`);
+    }
     ci.insertText = insertText;
     return ci;
 }
@@ -160,7 +165,7 @@ export function propsModelToOptions(prop: PropsModel): string {
                 r += v;
                 r += ',';
             }
-            return r.slice(0, -1);
+            return r.length >= 1 ? r.slice(0, -1) : "''";
         case 'bool':
             return '{true},{false}';
         case 'array':
