@@ -226,7 +226,6 @@ suite('Completion Test Suite', () => {
         assert.equal(propsModelToOptions(type as PropsModel), "{() => {}}");
     });
 
-
     test('type to props - shape 0', () => {
         const type = {
             "type": {
@@ -375,6 +374,6 @@ suite('Completion Test Suite', () => {
             "required": true,
             "description": "The `rows` prop is where you provide us with a list of all the rows that\nyou want to render in the table. The only hard requirement is that this\nis an array of objects, and that each object has a unique `id` field\navailable on it."
         };
-        assert.equal(propsModelToOptions(type as PropsModel), "{[ {id: string,disabled: bool} ]}");
+        assert.equal(propsModelToOptions(type as PropsModel), "{[ {id: string, disabled: bool} ]}");
     });
 });
