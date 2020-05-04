@@ -60,8 +60,6 @@ export function propsToCompletionItem(propsName: string, props: PropsModel): vsc
 
 export function carbonModelToCompletionItem(name: string, model: Model): vscode.CompletionItem {
     let ci = new vscode.CompletionItem(name, vscode.CompletionItemKind.Class);
-    // ci.insertText = `<${name}>\n   $1 \n</${name}>$2`;
-    // ci.insertText = new vscode.SnippetString("Good ${1|'morning',afternoon,evening|}.\n It is ${2|a,c,d|}, right?");
     let propsText = "";
     let counter = 1;
     if (model.props) {

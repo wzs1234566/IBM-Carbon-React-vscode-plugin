@@ -1,16 +1,8 @@
+import { Node } from '@babel/types';
 export interface AST {
-    type: string,
-    start: number,
-    end: number,
-    parent: AST,
-    body?: AST[],
-    expression?: AST,
-    openingElement?: AST,
-    attributes?: AST[],
-    name?: any,
-    value?: AST,
-    children?: AST[]
-}
+    node: Node,
+    parent: Node,
+};
 
 export interface Entity {
     target: 'tagName' | 'attributeName' | 'attributeValue' | 'children',

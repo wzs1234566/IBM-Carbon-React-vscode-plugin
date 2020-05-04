@@ -1,43 +1,67 @@
-import { Parser } from 'acorn';
-import { AST, Entity } from '../types/types';
+import { Entity, AST } from '../types/types';
+import * as parser from "@babel/parser";
+import traverse from "@babel/traverse";
+import { Node } from '@babel/types';
 
-const parser = Parser.extend(
-  require("acorn-jsx")(),
-);
-
-let node: any = null;
 export async function findEntityAtPosition(offset: number, documentText: string): Promise<Entity> {
-  node = null;
-  const ast: AST = parser.parse(documentText) as AST;
-  walkAST(offset, ast, {} as AST);
+  const ast = parser.parse(documentText, {
+    sourceType: "module",
+    plugins: ["jsx"]
+  });
+  // walkAST(offset, ast, {} as AST);
+  let node: AST;
+  traverse(ast, {
+    enter(path) {
+      // if (
+      //   path.node.type === "Identifier" &&
+      //   path.node.name === "n"
+      // ) {
+      //   path.node.name = "x";
+      // }
+      console.log(path.node);
+      switch (path.node.type) {
+        case 'JSXElement':
+        case 'JSXOpeningElement':
+        case 'JSXAttribute':
+        case 'JSXExpressionContainer':
+        case 'Identifier':
+          if (inRange(offset, ast)) {
+            node.node = path.node;
+            node.parent = path.parent;
+          }
+      }
+    }
+  });
   return ASTtoEntity(node);
 }
+
+
 
 // walks the ast and returns the ast node position is in
 function walkAST(offset: number, ast: AST, parent: AST): void {
   switch (ast.type) {
-    case "Program":
-      if (ast.body) {
-        for (let i = 0; i < ast.body.length; i++) {
-          walkAST(offset, ast.body[i], ast);
-        }
-      }
-      break;
-    case "ExpressionStatement":
-      if (ast.expression && ast.expression.type === "JSXElement") {
-        walkAST(offset, ast.expression, ast);
-      }
-      break;
-    case "JSXElement":
-      if (inRange(offset, ast) && ast.openingElement && ast.children) {
-        node = ast;
-        node.parent = parent;
-        walkAST(offset, ast.openingElement, ast);
-        for (let i = 0; i < ast.children.length; i++) {
-          walkAST(offset, ast.children[i], ast);
-        }
-      }
-      break;
+    // case "Program":
+    //   if (ast.body) {
+    //     for (let i = 0; i < ast.body.length; i++) {
+    //       walkAST(offset, ast.body[i], ast);
+    //     }
+    //   }
+    //   break;
+    // case "ExpressionStatement":
+    //   if (ast.expression && ast.expression.type === "JSXElement") {
+    //     walkAST(offset, ast.expression, ast);
+    //   }
+    //   break;
+    // case "JSXElement":
+    //   if (inRange(offset, ast) && ast.openingElement && ast.children) {
+    //     node = ast;
+    //     node.parent = parent;
+    //     walkAST(offset, ast.openingElement, ast);
+    //     for (let i = 0; i < ast.children.length; i++) {
+    //       walkAST(offset, ast.children[i], ast);
+    //     }
+    //   }
+    //   break;
     case "JSXOpeningElement":
       if (inRange(offset, ast) && ast.name && ast.attributes) {
         node = ast;
@@ -85,15 +109,15 @@ function walkAST(offset: number, ast: AST, parent: AST): void {
   }
 }
 
-function inRange(offset: number, ast: AST): boolean {
-  if (offset >= ast.start && offset < ast.end) {
+function inRange(offset: number, ast: Node): boolean {
+  if (offset >= (ast.start || 0) && offset < (ast.end || 0)) {
     return true;
   }
   return false;
 }
 
-function ASTtoEntity(ast: AST): Entity {
-  switch (ast.type) {
+function ASTtoEntity(node: Node, parent: Node): Entity {
+  switch (node.type) {
     // case "Program":
     //   break;
     // case "ExpressionStatement":
@@ -105,7 +129,7 @@ function ASTtoEntity(ast: AST): Entity {
         parent: {
           target: 'tagName',
           parent: {} as Entity,
-          value: ast.openingElement ? ast.openingElement.name ? ast.openingElement.name.name : '' : ''
+          value: node.openingElement ? node.openingElement.name ? node.openingElement.name : '' : ''
         } as Entity,
         value: '',
       } as Entity;
@@ -116,7 +140,7 @@ function ASTtoEntity(ast: AST): Entity {
         parent: {
           target: 'tagName',
           parent: {} as Entity,
-          value: ast.name ? ast.name.name : ''
+          value: node.name ? node.name : ''
         } as Entity,
         value: '',
       } as Entity;
@@ -127,9 +151,9 @@ function ASTtoEntity(ast: AST): Entity {
         parent: {
           target: 'tagName',
           parent: {},
-          value: ast.parent.parent?.name?.name,
+          value: parent.name,
         },
-        value: ast.name,
+        value: node.name,
       } as Entity;
     case "JSXAttribute":
       // return attributes names of some component
@@ -140,21 +164,21 @@ function ASTtoEntity(ast: AST): Entity {
         parent: {
           target: 'tagName',
           parent: {},
-          value: ast.parent ? ast.parent.name ? ast.parent.name.name : '' : ''
+          value: node.parent ? node.parent.name ? node.parent.name.name : '' : ''
         },
-        value: ast.name ? (ast.name.name ? ast.name.name : ast.name) : '',
+        value: node.name ? (node.name.name ? node.name.name : node.name) : '',
       } as Entity;
     // case "JSXExpressionContainer":
     //   break;
     case "Literal":
       return {
         target: 'attributeValue',
-        parent: ASTtoEntity(ast.parent),
-        value: ast.value ? ast.value : '',
+        parent: ASTtoEntity(node.parent),
+        value: node.value ? node.value : '',
       } as Entity;
     default:
       console.error("Invalid");
-      console.error(ast);
+      console.error(node);
       throw new Error("Invalid");
   }
 }
