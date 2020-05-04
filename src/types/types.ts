@@ -9,7 +9,8 @@ export interface AST {
     attributes?: AST[],
     name?: any,
     value?: AST,
-    children?: AST[]
+    children?: AST[],
+    ancestors?: AST[]
 }
 
 export interface Entity {

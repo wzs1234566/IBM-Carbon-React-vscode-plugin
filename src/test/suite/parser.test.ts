@@ -95,7 +95,9 @@ suite('Paser Test Suite', () => {
             13,
             "<c a={<d><e f=' '></e></d>}></c>");
         assert.equal(a.target, 'attributeName');
-        assert.equal(a.parent.value, 'e');
+        assert.equal(a.value, 'f');
+        // at 13, parent is actulaay 'a'
+        assert.equal(a.parent.value, 'a');
     });
 
     test('Hover - JSX in attribute name - parent name', async () => {

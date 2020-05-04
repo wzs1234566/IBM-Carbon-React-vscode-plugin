@@ -24,7 +24,6 @@ export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] 
             const attributeName = entity.parent.value;
             const tagName = entity.parent.parent.value;
             const tagModel = carbonModel[tagName];
-
             break;
         case 'children':
             Object.keys(carbonModel).forEach(
@@ -34,8 +33,7 @@ export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] 
             );
             break;
         default:
-            console.error("Invalid");
-            console.error(entity);
+            console.error("entityToCompletionItem", entity);
     }
     return res;
 }
@@ -200,19 +198,6 @@ export function entityToHover(entity: Entity, word: string): vscode.Hover {
             console.error('entityToHover: parsed value wrong', word, entity);
         }
         return componentToHover(carbonModel[word]);
-    }
-
-    switch (entity.target) {
-        case 'tagName':
-            break;
-        case 'attributeName':
-        case 'attributeValue':
-            break;
-        case 'children':
-            break;
-        default:
-            console.error("Invalid");
-            console.error(entity);
     }
     return {} as vscode.Hover;
 }

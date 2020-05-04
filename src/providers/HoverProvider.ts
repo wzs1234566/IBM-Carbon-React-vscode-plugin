@@ -12,7 +12,7 @@ export class CarbonHoverProvider implements vscode.HoverProvider {
         try {
             a = await findEntityAtPosition(document.offsetAt(position), document.getText());
         } catch (e) {
-            console.error(e);
+            console.error('provideHover', e);
         }
         return entityToHover(a, word);
     }

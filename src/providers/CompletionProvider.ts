@@ -16,7 +16,9 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         let a: Entity = {} as Entity;
         try {
             a = await findEntityAtPosition(document.offsetAt(position), document.getText());
-        } catch (e) { }
+        } catch (e) {
+            console.error('provideCompletionItems', e);
+        }
 
         vscode.window.showInformationMessage(
             `type: ${a.target}, value: ${a.value}, parent: ${a.parent.value}`
