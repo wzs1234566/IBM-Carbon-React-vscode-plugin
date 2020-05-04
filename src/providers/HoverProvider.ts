@@ -7,7 +7,6 @@ export class CarbonHoverProvider implements vscode.HoverProvider {
     async provideHover(document: vscode.TextDocument, position: vscode.Position) {
         const range = document.getWordRangeAtPosition(position);
         const word = document.getText(range);
-
         let a: Entity = {} as Entity;
         try {
             a = await findEntityAtPosition(document.offsetAt(position), document.getText());

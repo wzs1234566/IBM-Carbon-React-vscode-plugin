@@ -29,8 +29,8 @@ export interface Model {
     props?: {
         [key: string]: PropsModel
     }
-    // composes?: any
 }
+
 export interface PropsModel {
     defaultValue?: {
         computed: boolean

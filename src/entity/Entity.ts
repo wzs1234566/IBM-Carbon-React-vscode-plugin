@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { Entity, CarbonModel, Model, PropsModel } from '../types/types';
 import * as cm from '../CarbonModel/react-docgen.json';
 const carbonModel: CarbonModel = cm as CarbonModel;
+import * as cir from '@carbon/icons-react';
+const icons: any = cir as any;
 
 export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] {
     const res: vscode.CompletionItem[] = [];
@@ -58,8 +60,6 @@ export function propsToCompletionItem(propsName: string, props: PropsModel): vsc
 
 export function carbonModelToCompletionItem(name: string, model: Model): vscode.CompletionItem {
     let ci = new vscode.CompletionItem(name, vscode.CompletionItemKind.Class);
-    // ci.insertText = `<${name}>\n   $1 \n</${name}>$2`;
-    // ci.insertText = new vscode.SnippetString("Good ${1|'morning',afternoon,evening|}.\n It is ${2|a,c,d|}, right?");
     let propsText = "";
     let counter = 1;
     if (model.props) {
@@ -192,14 +192,27 @@ export function propsModelToOptions(prop: PropsModel): string {
 }
 
 export function entityToHover(entity: Entity, word: string): vscode.Hover {
+    entity;
     if (carbonModel[word]) {
-        // debug for parser
-        if (word !== entity.value) {
-            console.error('entityToHover: parsed value wrong', word, entity);
-        }
         return componentToHover(carbonModel[word]);
     }
+    if (icons && icons[word]) {
+        return iconToHover(word);
+    }
     return {} as vscode.Hover;
+}
+
+function iconToHover(iconName: string): vscode.Hover {
+    let content = '';
+    content += `## ${iconName} \n\n`;
+    const args = [{ name: iconName }];
+    const stageCommandUri = vscode.Uri.parse(
+        `command:CarbonIconPreview?${encodeURIComponent(JSON.stringify(args))}`
+    );
+    content += `\n [Click to see example](${stageCommandUri})  \n`;
+    const myContent = new vscode.MarkdownString(content);
+    myContent.isTrusted = true;
+    return new vscode.Hover(myContent);
 }
 
 function componentToHover(model: Model): vscode.Hover {
@@ -209,7 +222,6 @@ function componentToHover(model: Model): vscode.Hover {
     content += `## Props \n`;
     content += `|Props Name|Type|Required|Default|Values|  \n`;
     content += `| :--- |:---: | :---: |---:| ---: |  \n`;
-
 
     const propModel = model.props;
     if (propModel) {
@@ -222,7 +234,7 @@ function componentToHover(model: Model): vscode.Hover {
                     }
                     content += `| ${propsName} | ${propModel[propsName].type?.name} | ${propModel[propsName].required ? 'yes' : ''} | ${propModel[propsName].defaultValue?.value ?? ''} | ${valueOptions} |  \n`;
                 } catch (e) {
-                    console.error('????', e);
+                    console.error('componentToHover', e);
                 }
             }
         );

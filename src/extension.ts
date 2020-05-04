@@ -1,18 +1,11 @@
 import * as vscode from 'vscode';
 import { CarbonHoverProvider } from './providers/HoverProvider';
 import { CarbonCompletionItemProvider } from './providers/CompletionProvider';
-import { Entity, Model, PropsModel, CarbonModel } from './types/types';
-import * as cm from './CarbonModel/react-docgen.json';
-const carbonModel: CarbonModel = cm as CarbonModel;
+import { iconWebView } from './providers/IconWebView';
 
 export function activate(context: vscode.ExtensionContext) {
+	const languages = ['javascript', 'javascriptreact',];
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	vscode.window.showInformationMessage('Hello World from IBM-Carbon-React!');
-
-	const languages = ['javascript', 'javascriptreact',]; //'typescript', 'typescriptreact'];
-	
 	// Completion Item Provider
 	const provider = vscode.languages.registerCompletionItemProvider(
 		languages,
@@ -26,18 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
 		languages,
 		new CarbonHoverProvider()
 	);
-	// var types = {};
 
-	// Object.keys(carbonModel).forEach((model) => {
-	// 	const m = carbonModel[model];
-	// 	Object.keys(m.props || []).forEach((pn) => {
-	// 		const prop = m.props?.[pn];
-	// 		if (prop?.type?.name === 'union') {
-	// 			console.log(prop);
-	// 		}
-	// 	});
-	// });
-
+	// Carbon Icons
+	context.subscriptions.push(
+		vscode.commands.registerCommand('CarbonIconPreview', iconWebView)
+	);
 }
 
 export function deactivate() { }
