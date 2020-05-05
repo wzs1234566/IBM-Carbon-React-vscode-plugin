@@ -117,7 +117,6 @@ function ASTtoEntity(ast: AST): Entity {
 				value: ast.value ? ast.value : '',
 			} as Entity;
 		default:
-			console.error("ASTtoEntity", ast);
 			return {} as Entity;
 	}
 }

@@ -1,4 +1,5 @@
 # IBM Carbon React Components Intellisense
+![Code Completion](resources/carbon-icon.png)
 
 [![Build Status](https://travis-ci.com/wzs1234566/IBM-Carbon-React-vscode-plugin.svg?branch=master)](https://travis-ci.com/wzs1234566/IBM-Carbon-React-vscode-plugin)
 

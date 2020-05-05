@@ -35,7 +35,7 @@ export function entityToCompletionItem(entity: Entity): vscode.CompletionItem[] 
             );
             break;
         default:
-            console.error("entityToCompletionItem", entity);
+            break;
     }
     return res;
 }
@@ -181,7 +181,6 @@ export function propsModelToTableRow(propsName: string, propModel: any): string 
         }
         content += `| ${propsName} | ${propModel[propsName].type?.name} | ${propModel[propsName].required ? '✅' : '⬜️'} | ${propModel[propsName].defaultValue?.value ?? ''} | ${valueOptions} |  \n`;
     } catch (e) {
-        console.error('componentToHover', e);
     }
     return content;
 }

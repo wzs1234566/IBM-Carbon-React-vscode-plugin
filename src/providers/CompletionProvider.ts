@@ -9,7 +9,6 @@ export class CarbonCompletionItemProvider implements vscode.CompletionItemProvid
         try {
             a = await findEntityAtPosition(document.offsetAt(position), document.getText());
         } catch (e) {
-            console.error('provideCompletionItems', e);
         }
         return entityToCompletionItem(a);
     }
