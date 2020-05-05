@@ -22,11 +22,6 @@ hints for [IBM Carbon Design System](https://www.carbondesignsystem.com/) React 
 - JavaScript (.js)
 - JavaScript React (.jsx)
 
-## Release Notes
-### 1.0.0
-
-Initial release of ...
-
 -----------------------------------------------------------------------------------------------------------
 
 
