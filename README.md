@@ -7,13 +7,14 @@ hints for [IBM Carbon Design System](https://www.carbondesignsystem.com/) React 
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+1. Code Completion for Components, required props will be automatically inserted. Props will prompt values for selection 
+![Code Completion](resources/code-completion.gif)
 
-For example if there is an image subfolder under your extension project workspace:
+2. Hover over components and their props for information.
+![Hover to see details](resources/hover-component.gif)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+3. Hover over icons and see preview
+![Hover on icon to preview](resources/hover-icon.gif)
 
 
 ## Supported languages (file extensions)
@@ -21,20 +22,9 @@ For example if there is an image subfolder under your extension project workspac
 - JavaScript React (.jsx)
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
 Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
 
 -----------------------------------------------------------------------------------------------------------
 

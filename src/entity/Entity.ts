@@ -127,7 +127,7 @@ function iconToHover(iconName: string): vscode.Hover {
 function propsToHover(entity: Entity): vscode.Hover {
     let content = '';
     content += `## ${entity.parent.value} \n\n`;
-    content += `###${entity.value} \n\n`;
+    content += `### ${entity.value} \n\n`;
     content += `|Props Name|Type|Required|Default|Values|  \n`;
     content += `| :--- |:---: | :---: |---:| ---: |  \n`;
 
