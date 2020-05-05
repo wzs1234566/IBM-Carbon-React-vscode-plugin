@@ -125,14 +125,17 @@ function iconToHover(iconName: string): vscode.Hover {
 }
 
 function propsToHover(entity: Entity): vscode.Hover {
+    const model = carbonModel[entity.parent.value];
+    const propModel = model.props;
+
     let content = '';
     content += `## ${entity.parent.value} \n\n`;
     content += `### ${entity.value} \n\n`;
+    content += `${propModel?.[entity.value]?.description ?? ''} \n\n`;
     content += `|Props Name|Type|Required|Default|Values|  \n`;
     content += `| :--- |:---: | :---: |---:| ---: |  \n`;
 
-    const model = carbonModel[entity.parent.value];
-    const propModel = model.props;
+
 
     if (propModel) {
         Object.keys(propModel).forEach(
