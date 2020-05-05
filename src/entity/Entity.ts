@@ -98,6 +98,94 @@ export function carbonModelToCompletionItem(name: string, model: Model): vscode.
     return ci;
 }
 
+export function entityToHover(entity: Entity, word: string): vscode.Hover {
+    if (carbonModel[word]) {
+        return componentToHover(carbonModel[word]);
+    }
+    if (icons && icons[word]) {
+        return iconToHover(word);
+    }
+    if (entity && entity.parent.value && entity.value) {
+        return propsToHover(entity);
+    }
+    return {} as vscode.Hover;
+}
+
+function iconToHover(iconName: string): vscode.Hover {
+    let content = '';
+    content += `## Carbon Icon: ${iconName} \n\n`;
+    const args = [{ name: iconName }];
+    const stageCommandUri = vscode.Uri.parse(
+        `command:CarbonIconPreview?${encodeURIComponent(JSON.stringify(args))}`
+    );
+    content += `\n [Click to see Icon](${stageCommandUri})  \n`;
+    const myContent = new vscode.MarkdownString(content);
+    myContent.isTrusted = true;
+    return new vscode.Hover(myContent);
+}
+
+function propsToHover(entity: Entity): vscode.Hover {
+    let content = '';
+    content += `## ${entity.parent.value} \n\n`;
+    content += `###${entity.value} \n\n`;
+    content += `|Props Name|Type|Required|Default|Values|  \n`;
+    content += `| :--- |:---: | :---: |---:| ---: |  \n`;
+
+    const model = carbonModel[entity.parent.value];
+    const propModel = model.props;
+
+    if (propModel) {
+        Object.keys(propModel).forEach(
+            (propsName) => {
+                if (propsName === entity.value) {
+                    content += propsModelToTableRow(propsName, propModel);
+                }
+            }
+        );
+    }
+
+    const myContent = new vscode.MarkdownString(content);
+    myContent.isTrusted = true;
+    return new vscode.Hover(myContent);
+}
+
+function componentToHover(model: Model): vscode.Hover {
+    let content = '';
+    content += `## ${model.displayName} \n\n`;
+    content += `${model.description} \n\n`;
+    content += `## Props \n`;
+    content += `|Props Name|Type|Required|Default|Values|  \n`;
+    content += `| :--- |:---: | :---: |---:| ---: |  \n`;
+
+    const propModel = model.props;
+    if (propModel) {
+        Object.keys(propModel).forEach(
+            (propsName) => {
+                content += propsModelToTableRow(propsName, propModel);
+            }
+        );
+    }
+
+    content += `\n [Click to see example](https://react.carbondesignsystem.com/?path=/story/${model.displayName})  \n`;
+    const myContent = new vscode.MarkdownString(content);
+    myContent.isTrusted = true;
+    return new vscode.Hover(myContent);
+}
+
+export function propsModelToTableRow(propsName: string, propModel: any): string {
+    let content = '';
+    try {
+        let valueOptions = propsModelToOptions(propModel[propsName]);
+        if (valueOptions === "''") {
+            valueOptions = '';
+        }
+        content += `| ${propsName} | ${propModel[propsName].type?.name} | ${propModel[propsName].required ? '✅' : '⬜️'} | ${propModel[propsName].defaultValue?.value ?? ''} | ${valueOptions} |  \n`;
+    } catch (e) {
+        console.error('componentToHover', e);
+    }
+    return content;
+}
+
 export function propsModelToOptions(prop: PropsModel): string {
     let r = "";
     switch (prop.type?.name) {
@@ -189,59 +277,4 @@ export function propsModelToOptions(prop: PropsModel): string {
             return 'any';
     }
     return '';
-}
-
-export function entityToHover(entity: Entity, word: string): vscode.Hover {
-    entity;
-    if (carbonModel[word]) {
-        return componentToHover(carbonModel[word]);
-    }
-    if (icons && icons[word]) {
-        return iconToHover(word);
-    }
-    return {} as vscode.Hover;
-}
-
-function iconToHover(iconName: string): vscode.Hover {
-    let content = '';
-    content += `## ${iconName} \n\n`;
-    const args = [{ name: iconName }];
-    const stageCommandUri = vscode.Uri.parse(
-        `command:CarbonIconPreview?${encodeURIComponent(JSON.stringify(args))}`
-    );
-    content += `\n [Click to see example](${stageCommandUri})  \n`;
-    const myContent = new vscode.MarkdownString(content);
-    myContent.isTrusted = true;
-    return new vscode.Hover(myContent);
-}
-
-function componentToHover(model: Model): vscode.Hover {
-    let content = '';
-    content += `## ${model.displayName} \n\n`;
-    content += `${model.description} \n\n`;
-    content += `## Props \n`;
-    content += `|Props Name|Type|Required|Default|Values|  \n`;
-    content += `| :--- |:---: | :---: |---:| ---: |  \n`;
-
-    const propModel = model.props;
-    if (propModel) {
-        Object.keys(propModel).forEach(
-            (propsName) => {
-                try {
-                    let valueOptions = propsModelToOptions(propModel[propsName]);
-                    if (valueOptions === "''") {
-                        valueOptions = '';
-                    }
-                    content += `| ${propsName} | ${propModel[propsName].type?.name} | ${propModel[propsName].required ? 'yes' : ''} | ${propModel[propsName].defaultValue?.value ?? ''} | ${valueOptions} |  \n`;
-                } catch (e) {
-                    console.error('componentToHover', e);
-                }
-            }
-        );
-    }
-
-    content += `\n [Click to see example](https://react.carbondesignsystem.com/?path=/story/${model.displayName})  \n`;
-    const myContent = new vscode.MarkdownString(content);
-    myContent.isTrusted = true;
-    return new vscode.Hover(myContent);
 }
