@@ -2,7 +2,7 @@
 	"name": "ibm-carbon-react",
 	"displayName": "IBM Carbon React",
 	"description": "A Visual Studio Code extension for the IBM Carbon Design System React Components and Icons including features like code completion, intellisense, hover detail, and preview Icon",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -28,42 +28,29 @@
 		"carbon-meta": "bash src/getCarbonMeta.sh"
 	},
 	"devDependencies": {
+		"glob": "^7.1.6",
+		"mocha": "^7.1.1",
+		"@types/carbon__icons-react": "^10.9.0",
+		"@types/react": "^16.9.34",
+		"@types/react-dom": "^16.9.7",
 		"@types/vscode": "^1.44.0",
 		"@types/glob": "^7.1.1",
 		"@types/mocha": "^7.0.2",
 		"@types/node": "^13.11.0",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.26.0",
-		"@typescript-eslint/eslint-plugin": "^2.26.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.1.1",
-		"typescript": "^3.8.3",
+		"@types/acorn": "^4.0.5",
 		"vscode-test": "^1.3.0",
-		"@types/acorn": "^4.0.5"
+		"typescript": "^3.8.3"
 	},
 	"dependencies": {
 		"@carbon/icon-helpers": "^10.7.0",
 		"@carbon/icons": "^10.10.2",
 		"@carbon/icons-react": "^10.10.2",
-		"@types/carbon__icons-react": "^10.9.0",
-		"@types/react": "^16.9.34",
-		"@types/react-dom": "^16.9.7",
+		"acorn": "^7.1.1",
 		"acorn-jsx": "^5.2.0",
 		"acorn-jsx-walk": "^2.0.0",
 		"acorn-walk": "^7.1.1",
-		"react": "^16.13.1",
-		"react-dom": "^16.13.1",
-		"@types/vscode": "^1.44.0",
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.0",
 		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.26.0",
-		"@typescript-eslint/eslint-plugin": "^2.26.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.1.1",
-		"typescript": "^3.8.3",
-		"vscode-test": "^1.3.0",
-		"@types/acorn": "^4.0.5"
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
 	}
 }
