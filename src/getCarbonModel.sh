@@ -6,5 +6,4 @@ cd carbon/packages/react && \
 sed -i -e '/@carbon\/test-utils/d' package.json && \
 npm i && \
 yarn clean && node scripts/build.js && \
-cp react-docgen.json ../../../src/CarbonModel/react-docgen.json && \
-rm -rf ../../../carbon
+cp react-docgen.json ../../../src/CarbonModel/react-docgen.json

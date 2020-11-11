@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-import * as cir from '@carbon/icons-react';
+const cir = require('@carbon/icons-react/umd/index');
 const icons: any = cir as any;
 
 export function iconWebView(args: any) {
