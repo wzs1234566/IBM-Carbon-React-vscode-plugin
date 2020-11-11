@@ -2,7 +2,7 @@
 	"name": "ibm-carbon-react",
 	"displayName": "IBM Carbon React",
 	"description": "A Visual Studio Code extension for the IBM Carbon Design System React Components and Icons including features like code completion, intellisense, hover detail, and preview Icon",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -25,7 +25,8 @@
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"test": "node ./out/test/runTest.js",
-		"carbon-meta": "bash src/getCarbonMeta.sh"
+		"carbon-meta": "bash src/getCarbonMeta.sh",
+		"package": "vsce package"
 	},
 	"devDependencies": {
 		"glob": "^7.1.6",
@@ -45,9 +46,7 @@
 		"@typescript-eslint/eslint-plugin": "^2.26.0"
 	},
 	"dependencies": {
-		"@carbon/icon-helpers": "^10.7.0",
-		"@carbon/icons": "^10.10.2",
-		"@carbon/icons-react": "^10.10.2",
+		"@carbon/icons-react": "^10.20.0",
 		"acorn": "^7.1.1",
 		"acorn-jsx": "^5.2.0",
 		"acorn-jsx-walk": "^2.0.0",
