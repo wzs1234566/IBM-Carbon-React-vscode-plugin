@@ -30,7 +30,7 @@
 	},
 	"devDependencies": {
 		"glob": "^7.1.6",
-		"mocha": "^7.1.1",
+		"mocha": "^10.2.0",
 		"@types/carbon__icons-react": "^10.9.0",
 		"@types/react": "^16.9.34",
 		"@types/react-dom": "^16.9.7",
